@@ -25,29 +25,24 @@ class HuggingChat(LLM):
         return "custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        if stop is not None:
-            pass
-
         if self.chatbot is None:
             if self.email is None and self.psw is None:
                 ValueError("Email and Password is required, pls check the documentation on github : https://github.com/Soulter/hugging-chat-api")
-            else: 
-                if self.conversation == "":
-                    sign = Login(self.email, self.psw) # type: ignore
-                    cookies = sign.login()
+            elif self.conversation == "":
+                sign = Login(self.email, self.psw) # type: ignore
+                cookies = sign.login()
 
-                    # Create a ChatBot
-                    self.chatbot = hugchat.ChatBot(cookies=cookies.get_dict()) 
-                
-                    id = self.chatbot.new_conversation()
-                    self.chatbot.change_conversation(id)
-                    self.conversation = id         
-                else:
-                    self.chatbot.change_conversation(self.conversation) # type: ignore
-            
-    
-        data = self.chatbot.chat(prompt, temperature=0.4, stream=False) # type: ignore
-        return data # type: ignore
+                # Create a ChatBot
+                self.chatbot = hugchat.ChatBot(cookies=cookies.get_dict()) 
+
+                id = self.chatbot.new_conversation()
+                self.chatbot.change_conversation(id)
+                self.conversation = id
+            else:
+                self.chatbot.change_conversation(self.conversation) # type: ignore
+
+
+        return self.chatbot.chat(prompt, temperature=0.4, stream=False)
 
     @property
     def _identifying_params(self) -> Mapping[str, Any]:
